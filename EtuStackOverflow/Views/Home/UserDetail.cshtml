@@ -1,0 +1,158 @@
+﻿@{
+    ViewData["Title"] = "User Detail";
+}
+
+<div class="row" ref="anotherUsersProfileDetail">
+    <div class="col-md-3" v-if="(anotherUsersProfileDetail.id !== 0)&&(!isLoading)">
+        <div class="card">
+            <div class="card-body">
+                <div class="row mb-5 d-flex justify-content-center">
+                    <div class="col-md-12">
+                        <div v-if="userProfileDetail.roleName==='Admin'" class="d-flex justify-content-end">
+                            <button class="btn btn-danger text-white" v-on:click="deleteUserEvent(anotherUsersProfileDetail.id)">
+                                <i class='fa fa-trash'></i>
+                            </button>
+                        </div>
+                        <div class="d-flex justify-content-center mb-4 mt-1">
+                            <img v-if="anotherUsersProfileDetail.id!==0&&anotherUsersProfileDetail.profilePhoto.length > 0" class="rounded-circle" v-bind:src="getProfilePhoto(anotherUsersProfileDetail.profilePhoto)" width="160" height="160" alt="">
+                            <span v-if="!(anotherUsersProfileDetail.id!==0&&anotherUsersProfileDetail.profilePhoto.length !== 0)"
+                                  class="bg-light text-danger rounded-circle fs-1 fw-bold d-flex justify-content-center align-items-center" style="width: 160px;height: 160px;">
+                                {{anotherUsersProfileDetail.fullName.charAt(0)}}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="d-flex justify-content-center align-items-center mb-4">
+                            <div class="">
+                                <h3 class="mb-0">{{anotherUsersProfileDetail.fullName}}</h3>
+                                <p class="text-muted text-center mb-0">{{anotherUsersProfileDetail.userName}}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="d-flex justify-content-center align-items-center mb-4">
+                            <div class="rounded rounded-2 bg-info-lighten-2">
+                                <span class="p-1 fs-6 fw-500">{{anotherUsersProfileDetail.email}}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6" v-if="anotherUsersProfileDetail.id!==0&&anotherUsersProfileDetail.dateOfBirth!==null">
+                        <div class="d-flex justify-content-center align-items-center mb-4">
+                            <div class="rounded rounded-2 p-1 alert-warning">
+                                <span class="mb-0 ">{{getFormatedDate(anotherUsersProfileDetail.dateOfBirth)}}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <div class="card card-profile text-center">
+                            <span class="mb-1 text-primary"></i></span>
+                            <h3 class="mb-0">{{anotherUsersProfileDetail.commentCount}}</h3>
+                            <p class="text-muted px-4">Kullanıcı Yorumları</p>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="card card-profile text-center">
+                            <span class="mb-1 text-warning"></i></span>
+                            <h3 class="mb-0">{{anotherUsersProfileDetail.interactionCount}}</h3>
+                            <p class="text-muted">Kullanıcı Etkileşimleri</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4" v-if="(anotherUsersProfileDetail.id !== 0)&&(!isLoading)">
+        <div class="card">
+            <div class="card-header d-flex justify-content-center align-items-center">
+                <h3 class="card-title">
+                    Kullanıcı Soruları
+                </h3>
+            </div>
+            <div class="card-body">
+                <div class="media media-reply pb-2" v-for="(question) in anotherUsersProfileDetail.questions" :key="question.id">
+                    <div class="media-body">
+                        <div type="button" v-on:click="changeLocationRoute('/questions/'+question.id)">
+                            <div class="d-sm-flex justify-content-between mb-2">
+                                <div>
+                                    <h5 class="mb-sm-0"> {{question.title}}</h5>
+                                </div>
+                                <div>
+                                    <small class="text-muted ml-3"> {{timeSince(question.createdDate)}}</small>
+                                </div>
+                            </div>
+                            <p>
+                                {{question.content}}
+                            </p>
+                        </div>
+                        <div v-if="userProfileDetail.roleName==='Admin'" class="basic-dropdown d-flex justify-content-end">
+                            <div class="btn-group">
+                                <button type="button" v-on:click="deleteQuestionEvent(question.id)" class="btn btn-danger"><i class='fa fa-trash'></i></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-5" v-if="(anotherUsersProfileDetail.id !== 0)&&(!isLoading)">
+        <div class="card">
+            <div class="card-header d-flex justify-content-center align-items-center">
+                <h3 v-if="userProfileDetail.roleName==='User'" class="card-title">
+                    Kullanıcı Etkileşimleri
+                </h3>
+                <h3 v-if="userProfileDetail.roleName==='Admin'" class="card-title">
+                    Kullanıcı Yorumları
+                </h3>
+            </div>
+            <div class="card-body">
+                <div class="media media-reply pb-2" v-for="comment in anotherUsersProfileDetail.interactions" :key="comment.id">
+                    <img v-if="comment.profilePhoto.length > 0" class="rounded-circle" v-bind:src="getProfilePhoto(comment.profilePhoto)" width="50" height="50" alt="">
+                    <span v-if="comment.profilePhoto.length === 0"
+                          class="bg-light text-danger rounded-circle fs-1 fw-bold d-flex justify-content-center align-items-center" style="width: 50px;height: 50px;">
+                        {{comment.userName.charAt(0)}}
+                    </span>
+                    <div class="media-body ml-2">
+                        <div class="d-sm-flex justify-content-between mb-2">
+                            <h5 class="mb-sm-0">{{comment.userName}} <small class="text-muted ml-3">{{timeSince(comment.createdDate)}}</small></h5>
+                            <!-- <div class="media-reply__link d-flex justify-content-around">
+                                <div class="d-flex justify-content-center align-items-center mr-3">
+                                    <span>{{comment.likeCount}}</span>
+                                    <button class="btn btn-transparent p-0 ml-1" @* v-on:click="like(index)" *@><i class="fa fa-thumbs-up"></i></button>
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center mr-3">
+                                    <span>{{comment.disLikeCount}}</span>
+                                    <button class="btn btn-transparent p-0 ml-1" @* v-on:click="disLike(index)" *@><i class="fa fa-thumbs-down"></i></button>
+                                </div>
+                                <button class="btn btn-transparent text-dark font-weight-bold p-0 ml-2">Report</button>
+                            </div>-->
+                        </div>
+                        <div type="button" v-on:click="changeLocationRoute('/questions/'+comment.questionId)">
+                            <p>{{comment.content}}</p>
+                        </div>
+                        <div v-if="userProfileDetail.roleName==='Admin'" class="d-flex justify-content-end">
+                            <div class="btn-group">
+                                <button type="button" v-on:click="deleteCommentEvent(comment.id)" class="btn btn-danger"><i class='fa fa-trash'></i></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div v-if="(anotherUsersProfileDetail.id === 0)&&(isLoading)" class="d-flex justify-content-center mt-4 mb-4">
+        <div class="">
+            <div class="custom-user-spinner">
+            </div>
+        </div>
+    </div>
+    <div v-if="(anotherUsersProfileDetail.id === 0)&&(!isLoading)" class="d-flex justify-content-center mt-4 mb-4">
+        <div class="fw-bold fs-5">
+            <span>
+                Kullanıcı bulunamadı...
+            </span>
+        </div>
+    </div>
+</div>

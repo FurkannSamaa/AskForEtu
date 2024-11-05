@@ -1,0 +1,240 @@
+﻿@{
+    ViewData["Title"] = "Questions";
+}
+
+<div class="row d-flex justify-content-center" ref="questionPage">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <div class="row d-flex justify-content-center">
+                    <div class="col-md-3">
+                        <div class="row d-flex h-100 align-items-center">
+                            <div class="col-md-12 d-flex justify-content-center">
+                                <button class="btn btn-outline-dark" data-toggle="modal" data-target="#filterModal">Filtre</button>
+                                <div class="modal fade" id="filterModal">
+                                    <div class="modal-dialog modal-dialog-centered" role="document">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h3 class="modal-title">Filtreler</h3>
+                                                <button type="button" class="close" data-dismiss="modal">
+                                                    <span>&times;</span>
+                                                </button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <form>
+                                                    <div class="form-group">
+                                                        <div class="row">
+                                                            <div class="col-md-6 mb-2 d-flex justify-content-center ">
+                                                                <div class="form-check form-check-inline">
+                                                                    <label class="form-check-label">
+                                                                        <input name="isNewest" type="radio" class="form-check-input" value="">En Yeni
+                                                                    </label>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-md-6 mb-2 ">
+                                                                <div class="form-check form-check-inline">
+                                                                    <label class="form-check-label">
+                                                                        <input name="isNewest" type="radio" class="form-check-input" value="">En Eski
+                                                                    </label>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-md-6 mb-2 d-flex justify-content-center ">
+                                                                <div class="form-check form-check-inline">
+                                                                    <label class="form-check-label">
+                                                                        <input name="isSolved" type="radio" class="form-check-input" value="">Çözüldü
+                                                                    </label>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-md-6 mb-2">
+                                                                <div class="form-check form-check-inline">
+                                                                    <label class="form-check-label">
+                                                                        <input name="isSolved" type="radio" class="form-check-input" value="">Çözülmedi
+                                                                    </label>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-md-6 d-flex justify-content-center">
+                                                                <div class="form-check form-check-inline ">
+                                                                    <label class="form-check-label">
+                                                                        <input type="checkbox" class="form-check-input" value="">En Popüler
+                                                                    </label>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-md-6">
+                                                                <div class="form-check form-check-inline">
+                                                                    <label class="form-check-label">
+                                                                        <input type="checkbox" class="form-check-input" value="">Cevaplanmadı
+                                                                    </label>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                            <div class="modal-footer d-flex justify-content-center">
+                                                <button type="button" class="btn btn-info">Filtrele</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-9">
+                        <div class="row d-flex h-100 align-items-center">
+                            <div class="col-md-9">
+                                <div class="input-group icons">
+                                    <input type="text"
+                                           class="form-control rounded"
+                                           placeholder="Search Question"
+                                           v-model="searchTerm"
+                                           aria-label="Search Dashboard">
+                                    <div class="input-group-append">
+                                        <a class="btn-light rounded" v-on:click="getAllQuestionssEvent()">
+                                            <span class="input-group-text bg-transparent border-0 fs-4" id="basic-addon1"><i class="mdi mdi-magnify"></i></span>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="row d-flex h-100 align-items-center">
+                                    <div class="col-md-12">
+                                        <button v-if="isLogin" class="btn btn-info" data-toggle="modal" data-target="#askQuestionModal">Soru Sor</button>
+                                        <div class="modal fade" id="askQuestionModal">
+                                            <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h3 class="modal-title">Ask A Question</h3>
+                                                        <button type="button" class="close" data-dismiss="modal">
+                                                            <span>&times;</span>
+                                                        </button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <form v-on:submit.prevent="createQuestionEvent()">
+                                                            <div class="col-md-12 form-group">
+                                                                <div v-if="isError" class="alert alert-danger">
+                                                                    {{errorMessage}}
+                                                                </div>
+                                                            </div>
+                                                            <div class="row">
+                                                                <div class="col-md-12 form-group">
+                                                                    <label for="questionTitle" class="text-dark fw-bold">Question Title</label>
+                                                                    <input type="text"
+                                                                           required
+                                                                           v-model="questionCreate.title"
+                                                                           name="questionTitle"
+                                                                           class="form-control rounded"
+                                                                           placeholder="Question Title">
+                                                                </div>
+                                                                <div class="col-md-12 form-group">
+                                                                    <label for="content" class="text-dark fw-bold">Content</label>
+                                                                    <textarea required class="form-control h-150px" rows="6"
+                                                                              v-model="questionCreate.content" name="content"></textarea>
+                                                                </div>
+                                                            </div>
+                                                            <button type="button" class="btn btn-outline-danger" data-dismiss="modal">Close</button>
+                                                            <button class="btn btn-info submit">
+                                                                <span v-if="!isLoading">Soru Sor</span>
+                                                                <span v-if="isLoading" class="d-flex justify-content-center align-items-center">
+                                                                    Lütfen bekleyiniz...
+                                                                    <div class="custom-spinner"></div>
+                                                                </span>
+                                                            </button>
+                                                        </form>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="media media-reply pb-2" v-for="(question) in questions" :key="question.id">
+                    <div class="media-body">
+                        <div type="button" v-on:click="changeLocationRoute('/questions/'+question.id)">
+                            <div class="d-sm-flex justify-content-between mb-2">
+                                <div>
+                                    <h5 class="mb-sm-0 fw-bold">{{getMinimizeLength(question.title,1)}}</h5>
+                                </div>
+                                <div>
+                                    <small class="text-muted ml-3">{{timeSince(question.createdDate)}}</small>
+                                </div>
+                            </div>
+                            <h7>
+                                {{getMinimizeLength(question.content,2)}}
+                            </h7>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <div class="d-flex align-items-center justify-content-start" v-if="question.isSolved">
+                                <div class="">
+                                    <span class="label label-success">Çözüldü</span>
+                                </div>
+                            </div>
+                            <div class="d-flex align-items-center justify-content-start" v-if="!question.isSolved">
+                                <div class="">
+                                    <span class=""></span>
+                                </div>
+                            </div>
+                            <div class="d-flex align-items-center justify-content-end">
+                                <div class="">
+                                    <img v-if="question.profilePhoto.length !== 0" v-bind:src="getProfilePhoto(question.profilePhoto)" class="rounded-circle" width="30" height="30">
+                                    <span v-if="!(question.profilePhoto.length !== 0)"
+                                          class="bg-light text-danger rounded-circle fs-5 fw-bold d-flex justify-content-center align-items-center" style="width: 30px;height: 30px;">
+                                        {{question.userName.toUpperCase().charAt(0)}}
+                                    </span>
+                                </div>
+                                <div class="ml-2">
+                                    <a class="text-dark" :href="'/users/'+question.userId">
+                                        <span>{{question.userName}}</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div v-if="!(questions.length > 0)&&(isLoading)" class="d-flex justify-content-center">
+                    <div class="">
+                        <div class="custom-question-spinner">
+                        </div>
+                    </div>
+                </div>
+                <div v-if="!(questions.length > 0)&&(!isLoading)" class="d-flex justify-content-center">
+                    <div class="fw-bold fs-5">
+                        <span>
+                            Soru bulunamadı...
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="bootstrap-pagination">
+        <nav>
+            <ul class="pagination justify-content-center">
+                <li class="page-item" :disabled="!pagging.hasPrevios">
+                    <a class="page-link" href="#" aria-label="Previous" v-on:click.prevent="goToPageQuestion(pagging.currentPage - 1)">
+                        <span aria-hidden="true">&laquo;</span>
+                        <span class="sr-only">Previous</span>
+                    </a>
+                </li>
+                <li class="page-item"
+                    v-for="(page,index) in pages"
+                    :key="index"
+                    :class="{ active: page === pagging.currentPage }">
+                    <a class="page-link" href="#" v-on:click.prevent="goToPageQuestion(page)" v-if="page !== '...'">{{ page }}</a>
+                    <span class="page-link" v-else>{{ page }}</span>
+                </li>
+                <li class="page-item" :disabled="!pagging.hasNext">
+                    <a class="page-link" href="#" aria-label="Next" v-on:click.prevent="goToPageQuestion(pagging.currentPage + 1)">
+                        <span aria-hidden="true">&raquo;</span>
+                        <span class="sr-only">Next</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+</div>
+
